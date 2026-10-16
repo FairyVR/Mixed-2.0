@@ -55,7 +55,7 @@ module.exports = {
 
     const files = [];
     if (names.length) {
-      files.push(new AttachmentBuilder(Buffer.from(names.join('\n'), 'utf8'), {
+      files.push(new AttachmentBuilder(Buffer.from(names.join(','), 'utf8'), {
         name: 'meta-usernames.txt',
       }));
     }
