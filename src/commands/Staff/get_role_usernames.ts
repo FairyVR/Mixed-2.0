@@ -1,8 +1,6 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { PlayerManager } from '../../classes/PlayerManager';
 
-const ALLOWED_ROLE_ID = '1489618246066770091';
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('get_role_usernames')
@@ -10,23 +8,14 @@ module.exports = {
     .addRoleOption(option =>
       option.setName('role').setDescription('The role whose members to look up').setRequired(true)
     )
-    .setDMPermission(false),
+    .setDMPermission(false)
+    .setDefaultMemberPermissions(0),
 
   async execute(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
 
     if (!interaction.guild) {
       return interaction.editReply('Use this command in a server.');
-    }
-
-    // Check current membership before reading or exporting any usernames.
-    // Administrators must also have the required role.
-    const caller = await interaction.guild.members.fetch({ user: interaction.user.id, force: true });
-    if (!caller.roles.cache.has(ALLOWED_ROLE_ID)) {
-      return interaction.editReply({
-        content: `You need role <@&${ALLOWED_ROLE_ID}> to use this command.`,
-        allowedMentions: { parse: [] },
-      });
     }
 
     const selectedRole = interaction.options.getRole('role', true);
