@@ -1,13 +1,15 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { PlayerManager } from '../../classes/PlayerManager';
 
-const ROLE_ID = '1542454457197924402';
 const ALLOWED_ROLE_ID = '1489618246066770091';
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('get_role_usernames')
-    .setDescription('List registered Meta usernames of members with the configured role')
+    .setDescription('List registered Meta usernames of members with a selected role')
+    .addRoleOption(option =>
+      option.setName('role').setDescription('The role whose members to look up').setRequired(true)
+    )
     .setDMPermission(false),
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -27,14 +29,15 @@ module.exports = {
       });
     }
 
-    const role = await interaction.guild.roles.fetch(ROLE_ID);
+    const selectedRole = interaction.options.getRole('role', true);
+    const role = await interaction.guild.roles.fetch(selectedRole.id);
     if (!role) {
-      return interaction.editReply(`Role ${ROLE_ID} was not found in this server.`);
+      return interaction.editReply('The selected role was not found in this server.');
     }
 
     // Fetch all members: the role's cached member list may be incomplete.
     const members = await interaction.guild.members.fetch();
-    const matching = members.filter(member => member.roles.cache.has(ROLE_ID));
+    const matching = members.filter(member => member.roles.cache.has(role.id));
     if (matching.size === 0) {
       return interaction.editReply('No members have this role.');
     }
